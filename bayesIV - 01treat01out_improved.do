@@ -77,7 +77,7 @@ mata:
 end
 
 mata:
-draws = 100000
+draws = 10000
 	for (d=1;d<=draws;d++) {
 
 		Xu = (X, ur, uc)
