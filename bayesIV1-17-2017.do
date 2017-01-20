@@ -142,7 +142,7 @@ end
 	
 mata:
 
-for (i=1;i<=200000;i++) {
+for (i=1;i<=10000;i++) {
 
 /* First part - regression parameters and latent values for y1 */
 	
@@ -158,7 +158,7 @@ for (i=1;i<=200000;i++) {
 	y1    = tr:*y + (1 :-tr):*y1Hat
 	
 	mb1 = XX*X'(y1 - CM)
-	vb1 = exp(lnsd1)^2*XX
+	vb1 = CV*XX
 	b1 = mb1 + cholesky(vb1)*rnormal(cols(b1), 1, 0, 1)
 	b1 = b1'	
 
@@ -179,7 +179,7 @@ for (i=1;i<=200000;i++) {
 	y0 = (1 :- tr):*y + tr:*y0Hat
 	
 	mb0 = XX*X'(y0 - CM)
-	vb0 = exp(lnsd0)^2*XX
+	vb0 = CV*XX
 	b0 = mb0 + cholesky(vb0)*rnormal(cols(b0), 1, 0, 1)
 	b0 = b0'	
 
@@ -196,14 +196,14 @@ for (i=1;i<=200000;i++) {
 	CV = 1 - Sig12*Sig22m1*Sig12'	
 	
 	mct = mt + CM
-	et  = invnormstab( normal(-mct) + (1 :- normal(-mct)):*runiform(rows(mct),1) )
-	ent = invnormstab( normal(-mct):*runiform(rows(mct),1) )
+	et  = CV*invnormstab( normal(-mct/CV) + (1 :- normal(-mct/CV)):*runiform(rows(mct),1) )
+	ent = CV*invnormstab( normal(-mct/CV):*runiform(rows(mct),1) )
 	z = mct + et:*tr + ent:*(1 :- tr)
 	
 	/* Draw eta coefficients given unit variance, common values, etc. */
 	
 	meane = WW*W'(z - CM)
-	vare  = WW
+	vare  = CV*WW
 	e = meane + cholesky(vare)*rnormal(cols(e), 1, 0, 1)
 	e = e'
 	
@@ -316,3 +316,10 @@ for (i=1;i<=200000;i++) {
 	
 }	
 end	
+
+preserve
+clear 
+getmata (e*) =  eHold
+getmata (b1*) = b1Hold
+getmata (b0*) = b0Hold
+sum e* b*
